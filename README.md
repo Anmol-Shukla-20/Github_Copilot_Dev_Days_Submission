@@ -1,124 +1,84 @@
 # Smart Assignment Tracker
 
-A full-stack web app that helps students sync Google Classroom assignments, prioritize tasks by deadlines, track progress, and receive smart reminders.
+**Cubispace** is a powerful full-stack application designed to help students stay organized and ahead of their deadlines. By seamlessly syncing with Google Classroom, it provides a centralized dashboard for tracking assignments, managing progress, and receiving timely reminders.
 
-## Tech Stack
+---
 
-- Frontend: React + Vite + Tailwind CSS
-- Backend: Node.js + Express
-- Database: MongoDB + Mongoose
-- Authentication: Google OAuth 2.0
-- Integrations: Google Classroom API
-- Notifications: Twilio WhatsApp API (configured in this build)
-- Scheduling: node-cron
+## ✨ Key Features
 
-## Features
+- **🔄 Google Classroom Sync:** Effortlessly import your courses and assignments directly from Google Classroom.
+- **📅 Visual Dashboard:** View your tasks in a clean list or an interactive calendar view.
+- **⚖️ Smart Priority Logic:** Assignments are automatically categorized by urgency:
+  - 🔴 **High Priority:** Due within 24 hours.
+  - 🟡 **Medium Priority:** Due within 3 days.
+  - 🟢 **Low Priority:** Due in more than 3 days.
+- **🔔 Smart Notifications:** Stay on top of your work with automated WhatsApp reminders (via Twilio) sent 1 day and 2 hours before deadlines.
+- **📊 Progress Tracking:** Track your submission status (Pending, In Progress, Completed) and monitor missed deadlines.
+- **🌙 Modern UI:** A responsive, sleek interface built with Tailwind CSS, featuring an optional Dark Mode.
 
-- Google Sign-In with profile persistence in MongoDB
-- Google Classroom sync for courses and assignments
-- Assignment dashboard with:
-  - List view
-  - Calendar view
-  - Status updates (Pending/In Progress/Completed)
-  - Timeline status display (Pending/Submitted/Late)
-- Smart priority logic:
-  - `< 1 day` => HIGH
-  - `1-3 days` => MEDIUM
-  - `> 3 days` => LOW
-- Manual assignment creation
-- Filters and sorting:
-  - Filter by subject, priority, status
-  - Sort by due date or priority
-- Reminder jobs:
-  - 1 day before deadline
-  - 2 hours before deadline
-- Sidebar navigation: Dashboard, Calendar, Settings
-- Responsive modern UI with optional dark mode
-- Progress tracker and missed deadline section
+---
 
-## Project Structure
+## 🛠️ Tech Stack
 
-```
-client/
-server/
-  src/
-    config/
-    controllers/
-    middleware/
-    models/
-    routes/
-    services/
-    utils/
-```
+- **Frontend:** React + Vite, Tailwind CSS
+- **Backend:** Node.js + Express
+- **Database:** MongoDB + Mongoose
+- **Auth:** Google OAuth 2.0
+- **Integrations:** Google Classroom API, Twilio WhatsApp API
+- **Scheduling:** node-cron
 
-## Setup
+---
 
-### 1. Clone and install
+## 🚀 Getting Started
 
-From the project root:
+### 1. Installation
+Clone the repository and install dependencies for both the client and server:
 
 ```bash
+# Install root dependencies
 npm install
-npm --prefix server install
-npm --prefix client install
+
+# Install server & client dependencies
+npm run install-all
 ```
 
-### 2. Configure environment variables
+### 2. Environment Setup
+Create a `.env` file in both the `/server` and `/client` directories based on the provided `.env.example` files.
 
-Create these files from examples:
+**Key Variables Needed:**
+- `GOOGLE_CLIENT_ID` & `GOOGLE_CLIENT_SECRET`
+- `MONGODB_URI`
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_FROM`
 
-- `server/.env` from `server/.env.example`
-- `client/.env` from `client/.env.example`
-
-### 3. Configure Google OAuth and Classroom
-
-- Create Google OAuth credentials in Google Cloud Console.
-- Enable APIs:
-  - Google Classroom API
-- Add authorized JavaScript origins:
-  - `http://localhost:5173`
-- Use the same Client ID in both:
-  - `server/.env` -> `GOOGLE_CLIENT_ID`
-  - `client/.env` -> `VITE_GOOGLE_CLIENT_ID`
-
-### 4. Configure Twilio (WhatsApp reminders)
-
-In `server/.env`:
-
-- `TWILIO_ACCOUNT_SID`
-- `TWILIO_AUTH_TOKEN`
-- `TWILIO_WHATSAPP_FROM`
-
-In Settings page, save user phone as WhatsApp address (for example `whatsapp:+1234567890`).
-
-### 5. Run locally
-
-From root:
+### 3. Running the App
+Start the development environment (both frontend and backend) with a single command:
 
 ```bash
 npm run dev
 ```
 
-- Frontend: `http://localhost:5173`
-- Backend: `http://localhost:5000`
+- **Frontend:** [http://localhost:5173](http://localhost:5173)
+- **Backend:** [http://localhost:5000](http://localhost:5000)
 
-## REST API
+---
 
-- `POST /auth/google`
-- `PUT /auth/profile`
-- `GET /assignments`
-- `POST /assignments/fetch`
-- `POST /assignments/add`
-- `PUT /assignments/update/:id`
-- `DELETE /assignments/delete/:id`
+## 📁 Project Structure
 
-## Error Handling and Loading States
+```text
+├── client/          # React frontend (Vite)
+├── server/          # Node.js backend (Express)
+│   ├── src/
+│   │   ├── controllers/   # Business logic
+│   │   ├── models/        # Database schemas
+│   │   ├── services/      # External API integrations (Google, Twilio)
+│   │   └── routes/        # API endpoints
+└── README.md
+```
 
-- Backend returns status-specific JSON errors.
-- Frontend shows loading spinners and error messages for auth, sync, and data fetch actions.
+---
 
-## Notes
+## 📝 Usage Notes
+- **Google Consent:** Ensure you grant the necessary permissions for Google Classroom API during sign-in.
+- **WhatsApp Reminders:** Ensure your phone number is saved in the Settings page in the correct format (e.g., `whatsapp:+1234567890`).
+- **Automation:** The reminder engine runs every 15 minutes to check for upcoming deadlines.
 
-- Google Classroom sync requires user consent for classroom scopes.
-- Reminder cron runs every 15 minutes and dispatches notification windows for 1-day and 2-hour thresholds.
-- Twilio reminder sending is skipped automatically when Twilio env variables are missing.
