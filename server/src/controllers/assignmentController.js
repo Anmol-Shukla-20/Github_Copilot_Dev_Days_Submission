@@ -2,6 +2,7 @@ import { Assignment } from "../models/Assignment.js";
 import { getPriority } from "../utils/priority.js";
 import { getStatus } from "../utils/priority.js";
 import { fetchClassroomData } from "../services/classroomService.js";
+import dayjs from "dayjs";
 
 const toDTO = (assignment) => ({
   id: assignment._id,
@@ -30,6 +31,10 @@ export const getAssignments = async (req, res) => {
     if (subject) filter.subject = subject;
     if (priority) filter.priority = priority;
     if (status) filter.status = status;
+
+    // Only show assignments from last 3 months onwards
+    const threeMonthsAgo = dayjs().subtract(3, "month").toDate();
+    filter.dueDate = { $gte: threeMonthsAgo };
 
     const assignments = await Assignment.find(filter).sort({ dueDate: 1 });
 
@@ -60,6 +65,17 @@ export const fetchAssignmentsFromClassroom = async (req, res) => {
     const upserts = fetched.map(async (item) => {
       const priority = getPriority(item.dueDate);
 
+      let status = "PENDING";
+      if (item.submissionState === "TURNED_IN" || item.submissionState === "RETURNED") {
+        status = "COMPLETED";
+      } else {
+        const diffDays = dayjs(item.dueDate).diff(dayjs(), "day");
+        // If due in next 2 days and not submitted, mark as IN_PROGRESS
+        if (diffDays >= 0 && diffDays <= 2) {
+          status = "IN_PROGRESS";
+        }
+      }
+
       await Assignment.findOneAndUpdate(
         {
           user: req.user.userId,
@@ -74,7 +90,8 @@ export const fetchAssignmentsFromClassroom = async (req, res) => {
             subject: item.subject,
             dueDate: item.dueDate,
             source: "CLASSROOM",
-            priority
+            priority,
+            status
           }
         },
         { upsert: true, new: true, setDefaultsOnInsert: true }

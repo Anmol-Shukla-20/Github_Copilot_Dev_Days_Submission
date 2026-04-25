@@ -16,7 +16,7 @@ const SettingsPage = () => {
 
   const login = useGoogleLogin({
     scope:
-      "https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.coursework.me.readonly",
+      "https://www.googleapis.com/auth/classroom.courses.readonly https://www.googleapis.com/auth/classroom.coursework.me.readonly https://www.googleapis.com/auth/classroom.student-submissions.me.readonly",  // added for tracking assignment status
     onSuccess: async (tokenResponse) => {
       try {
         setSyncing(true);

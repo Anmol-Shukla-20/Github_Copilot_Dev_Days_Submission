@@ -21,15 +21,33 @@ export const fetchClassroomData = async (accessToken) => {
   const courses = coursesRes.data.courses ?? [];
 
   const assignments = [];
+  // this is used to see the duration of events fetched from the classroom.. 
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
   await Promise.all(
     courses.map(async (course) => {
       const workRes = await classroom.courses.courseWork.list({ courseId: course.id });
       const courseWorks = workRes.data.courseWork ?? [];
 
+      const submissionRes = await classroom.courses.courseWork.studentSubmissions.list({
+        courseId: course.id,
+        courseWorkId: "-",
+        userId: "me"
+      });
+      const submissions = submissionRes.data.studentSubmissions ?? [];
+      
+      const submissionMap = submissions.reduce((acc, sub) => {
+        acc[sub.courseWorkId] = sub.state;
+        return acc;
+      }, {});
+
       for (const work of courseWorks) {
         const dueDate = buildDueDate(work.dueDate, work.dueTime);
         if (!dueDate) continue;
+         //this neeeds to be changed for time settings for UI....
+        // Skip if older than 3 months
+        if (dueDate < threeMonthsAgo) continue;
 
         assignments.push({
           title: work.title,
@@ -37,7 +55,8 @@ export const fetchClassroomData = async (accessToken) => {
           subject: course.name,
           dueDate,
           classroomCourseId: course.id,
-          classroomCourseWorkId: work.id
+          classroomCourseWorkId: work.id,
+          submissionState: submissionMap[work.id] || "NEW"
         });
       }
     })

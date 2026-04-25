@@ -1,13 +1,25 @@
 import { GoogleLogin } from "@react-oauth/google";
+import { useState } from "react";
 import { authWithGoogle } from "../services/api";
 import LoadingSpinner from "../components/LoadingSpinner";
 
 const LoginPage = ({ onLogin, loading, error }) => {
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
+
   const handleSuccess = async (credentialResponse) => {
     if (!credentialResponse.credential) return;
 
-    const result = await authWithGoogle({ idToken: credentialResponse.credential });
-    onLogin(result);
+    try {
+      setAuthLoading(true);
+      setAuthError("");
+      const result = await authWithGoogle({ idToken: credentialResponse.credential });
+      onLogin(result);
+    } catch (apiError) {
+      setAuthError(apiError.response?.data?.message || "Login failed. Please verify backend and MongoDB are running.");
+    } finally {
+      setAuthLoading(false);
+    }
   };
 
   return (
@@ -18,9 +30,16 @@ const LoginPage = ({ onLogin, loading, error }) => {
           Connect Google Classroom, prioritize due work, and get smart reminders.
         </p>
 
-        <div className="mt-6">{loading ? <LoadingSpinner label="Signing in..." /> : <GoogleLogin onSuccess={handleSuccess} onError={() => {}} />}</div>
+        <div className="mt-6">
+          {loading || authLoading ? (
+            <LoadingSpinner label="Signing in..." />
+          ) : (
+            <GoogleLogin onSuccess={handleSuccess} onError={() => setAuthError("Google sign-in was cancelled or failed.")} />
+          )}
+        </div>
 
         {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+        {authError ? <p className="mt-2 text-sm text-red-600">{authError}</p> : null}
       </section>
     </main>
   );
