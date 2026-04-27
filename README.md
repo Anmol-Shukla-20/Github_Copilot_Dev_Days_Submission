@@ -1,6 +1,6 @@
 # Smart Assignment Tracker
 
-**Cubispace** is a powerful full-stack application designed to help students stay organized and ahead of their deadlines. By seamlessly syncing with Google Classroom, it provides a centralized dashboard for tracking assignments, managing progress, and receiving timely reminders.
+**Google ClassRoom Assignment Tracker** application designed to help students stay organized and ahead of their deadlines. By seamlessly syncing with Google Classroom, it provides a centralized dashboard for tracking assignments, managing progress, and receiving timely reminders.
 
 ---
 
